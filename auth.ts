@@ -22,5 +22,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       privateKey: process.env.AUTH_FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
   }),
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
 });

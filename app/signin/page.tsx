@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Theme } from "@/components/Theme";
+import { signIn } from "@/auth";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub, FaLock, FaEnvelope, FaArrowRight } from "react-icons/fa";
 
@@ -23,23 +24,37 @@ export default function SignInPage() {
               </p>
             </div>
 
-            {/* Direct OAuth Links (Bypasses Server Action Lag Loops) */}
+            {/* OAuth sign-in via server actions (NextAuth v5 needs a POST to start OAuth) */}
             <div className="flex flex-col gap-3">
-              <a
-                href="/api/auth/signin/google"
-                className="w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-700 font-medium py-3 px-4 rounded-md flex items-center justify-center gap-3 transition-colors text-sm text-neutral-200 cursor-pointer"
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("google", { redirectTo: "/" });
+                }}
               >
-                <FcGoogle className="text-xl" />
-                <span>Continue with Google</span>
-              </a>
+                <button
+                  type="submit"
+                  className="w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-700 font-medium py-3 px-4 rounded-md flex items-center justify-center gap-3 transition-colors text-sm text-neutral-200 cursor-pointer"
+                >
+                  <FcGoogle className="text-xl" />
+                  <span>Continue with Google</span>
+                </button>
+              </form>
 
-              <a
-                href="/api/auth/signin/github"
-                className="w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-700 font-medium py-3 px-4 rounded-md flex items-center justify-center gap-3 transition-colors text-sm text-neutral-200 cursor-pointer"
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("github", { redirectTo: "/" });
+                }}
               >
-                <FaGithub className="text-xl text-white" />
-                <span>Continue with GitHub</span>
-              </a>
+                <button
+                  type="submit"
+                  className="w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-700 font-medium py-3 px-4 rounded-md flex items-center justify-center gap-3 transition-colors text-sm text-neutral-200 cursor-pointer"
+                >
+                  <FaGithub className="text-xl text-white" />
+                  <span>Continue with GitHub</span>
+                </button>
+              </form>
             </div>
 
             <div className="relative my-6 flex items-center justify-center">
@@ -49,7 +64,7 @@ export default function SignInPage() {
               </span>
             </div>
 
-            <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-mono text-neutral-400 flex items-center gap-1">
                   <FaEnvelope className="text-[10px]" /> Email

@@ -5,14 +5,24 @@ import { RiMenu3Fill } from "react-icons/ri";
 import { IoMdClose } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { useState } from "react";
+import type { Session } from "next-auth";
 
 interface NavProps {
-  session: any;
+  session: Session | null;
   signOutAction: () => Promise<void>;
-  getInitials: (name?: string | null) => string;
 }
 
-export default function Nav({ session, signOutAction, getInitials }: NavProps) {
+function getInitials(name?: string | null) {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join("");
+}
+
+export default function Nav({ session, signOutAction }: NavProps) {
   const [navOpen, setNavOpen] = useState(false);
 
   const navStuff: { label: string; href: string }[] = [
@@ -50,11 +60,9 @@ export default function Nav({ session, signOutAction, getInitials }: NavProps) {
         {session?.user ? (
           <div className="flex items-center gap-3 bg-black/10 px-3 py-1.5 rounded-full border border-black/20 text-black">
             {session.user.image ? (
-              <Image
+              <img
                 src={session.user.image}
                 alt={session.user.name || "User"}
-                width={32}
-                height={32}
                 className="w-8 h-8 rounded-full object-cover border border-black"
               />
             ) : (
@@ -79,7 +87,7 @@ export default function Nav({ session, signOutAction, getInitials }: NavProps) {
           </div>
         ) : (
           <div className="text-white flex gap-3">
-            <Link href="/sign-in">
+            <Link href="/signin">
               <button className="bg-black py-3 px-5 rounded-sm">Sign In</button>
             </Link>
           </div>
@@ -141,7 +149,7 @@ export default function Nav({ session, signOutAction, getInitials }: NavProps) {
                 </div>
               ) : (
                 <div className="flex flex-col gap-4 text-white w-full">
-                  <Link href="/sign-in" onClick={() => setNavOpen(false)}>
+                  <Link href="/signin" onClick={() => setNavOpen(false)}>
                     <button className="bg-black py-3 px-8 rounded-sm w-full">
                       Sign In
                     </button>
