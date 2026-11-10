@@ -9,8 +9,8 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { 
   FaBug, 
   FaTerminal, 
-  FaCodeBranch, 
-  FaExclamationTriangle, 
+  FaCode, 
+  FaUser, 
   FaArrowRight, 
   FaLayerGroup,
   FaArrowLeft,
@@ -20,18 +20,25 @@ import {
 export default function NewWarRoomIssuePage() {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Next.js");
-  const [severity, setSeverity] = useState("Blocker");
-  const [description, setDescription] = useState("");
-  const [errorTrace, setErrorTrace] = useState("");
-  const [reproductionSteps, setReproductionSteps] = useState("");
+  const [username, setUsername] = useState("");
+  const [language, setLanguage] = useState("JavaScript");
+  const [issueDescription, setIssueDescription] = useState("");
+  const [codeSnippet, setCodeSnippet] = useState("");
   
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const categories = ["Next.js", "React", "Node.js", "PostgreSQL", "Python", "Tailwind", "Docker", "Other"];
-  const severities = ["Critical", "Blocker", "Moderate", "Minor"];
+  const languages = [
+    "JavaScript", 
+    "TypeScript", 
+    "Python", 
+    "React / Next.js", 
+    "Node.js", 
+    "PostgreSQL / SQL", 
+    "HTML / Tailwind", 
+    "Docker / DevOps", 
+    "Other"
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,21 +48,19 @@ export default function NewWarRoomIssuePage() {
     try {
       // Structure the document payload for Firestore
       const payload = {
-        title,
-        category,
-        severity,
-        description,
-        errorTrace,
-        reproductionSteps,
+        title: issueDescription ? issueDescription.slice(0, 60) + "..." : `${language} Code Roadblock`,
+        username: username.trim() || "Anonymous Dev",
+        category: language,
+        description: issueDescription || "No description provided. Inspect code snippet below.",
+        codeSnippet: codeSnippet,
         status: "Open",
-        responsesCount: 0,
         createdAt: serverTimestamp(),
       };
 
-      // Push document to Firestore collection (e.g. "war_room_issues")
+      // Push document to Firestore collection
       await addDoc(collection(db, "war_room_issues"), payload);
 
-      // Redirect back to the War Room queue queue after successful publish
+      // Redirect back to the War Room queue after successful publish
       router.push("/war-room");
     } catch (err: any) {
       console.error("Error publishing to War Room:", err);
@@ -80,13 +85,13 @@ export default function NewWarRoomIssuePage() {
           <div className="bg-neutral-900 border border-neutral-800 rounded-t-xl p-6 md:p-8 border-b-0">
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-950 border border-neutral-800 text-xs font-mono w-fit mb-3">
               <FaBug style={{ color: Theme.primary }} />
-              <span className="text-neutral-300">Dispatch Roadblock to War Room</span>
+              <span className="text-neutral-300">Dispatch Code Roadblock</span>
             </div>
             <h1 className="text-2xl md:text-4xl font-extrabold uppercase tracking-tight">
-              Post <span style={{ color: Theme.primary }}>Unresolved Error</span>
+              Post to <span style={{ color: Theme.primary }}>War Room</span>
             </h1>
             <p className="text-sm text-neutral-400 mt-1 font-light">
-              Provide clear reproduction steps and error logs so developers can rapidly diagnose your issue.
+              Drop your code snippet, specify your language, and let the community help debug your roadblock.
             </p>
           </div>
 
@@ -99,55 +104,37 @@ export default function NewWarRoomIssuePage() {
               </div>
             )}
 
-            {/* Issue Title */}
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-mono uppercase text-neutral-300 font-semibold flex items-center gap-1.5">
-                <FaBug className="text-amber-400 text-[11px]" /> Issue Summary / Error Title *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g., App Router Middleware Infinite Redirect Loop with NextAuth v5"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white placeholder-neutral-600"
-              />
-            </div>
-
-            {/* Category & Severity Row */}
+            {/* Username & Language Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Framework / Tech Stack */}
+              {/* Username */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-mono uppercase text-neutral-300 font-semibold flex items-center gap-1.5">
-                  <FaLayerGroup className="text-amber-400 text-[11px]" /> Tech Stack / Framework *
+                  <FaUser className="text-amber-400 text-[11px]" /> Your Name / Handle *
                 </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white cursor-pointer"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g., DevWizard"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white placeholder-neutral-600"
+                />
               </div>
 
-              {/* Priority Severity */}
+              {/* Language / Tech Stack */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-mono uppercase text-neutral-300 font-semibold flex items-center gap-1.5">
-                  <FaExclamationTriangle className="text-amber-400 text-[11px]" /> Severity Level *
+                  <FaLayerGroup className="text-amber-400 text-[11px]" /> Language / Framework *
                 </label>
                 <select
-                  value={severity}
-                  onChange={(e) => setSeverity(e.target.value)}
-                  className="bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white cursor-pointer font-mono"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white cursor-pointer"
                 >
-                  {severities.map((sev) => (
-                    <option key={sev} value={sev}>
-                      {sev}
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
                     </option>
                   ))}
                 </select>
@@ -155,47 +142,32 @@ export default function NewWarRoomIssuePage() {
 
             </div>
 
-            {/* Description */}
+            {/* Optional Issue Description */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-mono uppercase text-neutral-300 font-semibold flex items-center gap-1.5">
-                <FaCodeBranch className="text-amber-400 text-[11px]" /> Issue Context & Explanation *
+                <FaBug className="text-amber-400 text-[11px]" /> Issue Description (Optional)
               </label>
               <textarea
                 rows={3}
-                required
-                placeholder="Describe what you are attempting to build and the unexpected behavior you encountered..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe what error you are getting or what you want this code to do..."
+                value={issueDescription}
+                onChange={(e) => setIssueDescription(e.target.value)}
                 className="bg-neutral-950 border border-neutral-800 rounded-lg p-4 text-sm focus:outline-none focus:border-amber-400 transition-colors text-white placeholder-neutral-600 resize-y"
               ></textarea>
             </div>
 
-            {/* Error Stack Trace Box */}
+            {/* Code Workspace Box */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-mono uppercase text-red-400 font-semibold flex items-center gap-1.5">
-                <FaTerminal className="text-red-400 text-[11px]" /> Stack Trace / Terminal Log Output *
+              <label className="text-xs font-mono uppercase text-amber-400 font-semibold flex items-center gap-1.5">
+                <FaCode className="text-amber-400 text-[11px]" /> Code Workspace *
               </label>
               <textarea
-                rows={5}
+                rows={7}
                 required
-                placeholder="Paste exact console errors, stack traces, or terminal logs here..."
-                value={errorTrace}
-                onChange={(e) => setErrorTrace(e.target.value)}
-                className="bg-neutral-950 border border-neutral-800 rounded-lg p-4 font-mono text-xs text-red-300 focus:outline-none focus:border-amber-400 transition-colors placeholder-neutral-700 resize-y"
-              ></textarea>
-            </div>
-
-            {/* Reproduction Steps */}
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-mono uppercase text-neutral-300 font-semibold flex items-center gap-1.5">
-                Steps to Reproduce (Optional)
-              </label>
-              <textarea
-                rows={3}
-                placeholder="1. Run 'npm run dev'&#10;2. Navigate to /dashboard&#10;3. Observe crash..."
-                value={reproductionSteps}
-                onChange={(e) => setReproductionSteps(e.target.value)}
-                className="bg-neutral-950 border border-neutral-800 rounded-lg p-4 text-sm font-mono focus:outline-none focus:border-amber-400 transition-colors text-white placeholder-neutral-600 resize-y"
+                placeholder="// Paste your buggy code or snippet here..."
+                value={codeSnippet}
+                onChange={(e) => setCodeSnippet(e.target.value)}
+                className="bg-neutral-950 border border-neutral-800 rounded-lg p-4 font-mono text-xs text-amber-200 focus:outline-none focus:border-amber-400 transition-colors placeholder-neutral-700 resize-y"
               ></textarea>
             </div>
 
