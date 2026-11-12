@@ -110,7 +110,7 @@ export default function Nav({ session }: NavProps) {
           </div>
         ) : (
           <Link
-            href="/sign-in"
+            href="/signin"
             style={{ backgroundColor: Theme.primary }}
             className="text-black font-bold px-4 py-2 rounded-md text-xs font-mono hover:opacity-90 transition-all cursor-pointer shadow-md"
           >
