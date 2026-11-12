@@ -66,7 +66,7 @@ export default function Nav({ session }: NavProps) {
               className="flex items-center gap-2 border border-neutral-800 hover:border-amber-400 rounded-full p-1 transition-all cursor-pointer bg-neutral-900"
             >
               {session.user.image ? (
-                <Image
+                <img
                   src={session.user.image}
                   alt="Profile"
                   width={32}
